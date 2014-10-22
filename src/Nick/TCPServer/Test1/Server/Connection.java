@@ -68,6 +68,15 @@ public class Connection implements Runnable {
         fireCloseEvent();
     }
 
+    public void serverTerminated() {
+
+        PackageWriter pw = new PackageWriter(this);
+
+        MainCommands mc = MainCommands.close;
+        pw.write(mc.ordinal());
+        pw.send();
+    }
+
     private synchronized void fireCloseEvent() {
         ConnectionCloseEvent closeEvent = new ConnectionCloseEvent(this, this);
         for (Object listener : listeners) {

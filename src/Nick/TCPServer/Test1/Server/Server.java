@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Nick on 18/10/2014.
@@ -12,13 +14,13 @@ import java.util.ArrayList;
  * http://www.apache.org/licenses/
  */
 public class Server implements Runnable {
-    public static ArrayList<Connection> connections;
+    public static CopyOnWriteArrayList<Connection> connections;
     final int PORT;
     ServerSocket serverSocket;
 
     public Server(int port) {
         PORT = port;
-        connections = new ArrayList<>();
+        connections = new CopyOnWriteArrayList<>();
 
         try {
             serverSocket = new ServerSocket(PORT, 100);
@@ -69,13 +71,10 @@ public class Server implements Runnable {
     }
 
     public void close() {
-        cleanUp();
-    }
-
-    private void cleanUp() {
         try {
 
             for (Connection c : connections) {
+                c.serverTerminated();
                 c.close();
             }
 
@@ -84,7 +83,7 @@ public class Server implements Runnable {
             //TODO: Insert better error handling!
         }
         connections.clear();
+
+
     }
-
-
 }

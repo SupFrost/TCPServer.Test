@@ -1,6 +1,7 @@
 package Nick.TCPServer.Test1.Client;
 
 import Nick.TCPServer.Test1.Events.Client.ConnectionEvents.ConnectionCloseEvent;
+import Nick.TCPServer.Test1.Events.Client.ConnectionEvents.ServerClosedEvent;
 import Nick.TCPServer.Test1.Events.Client.ConnectionListener;
 import Nick.TCPServer.Test1.PackageHandler.Commands.MainCommands;
 import Nick.TCPServer.Test1.PackageHandler.Commands.ServerClient;
@@ -67,13 +68,19 @@ public class Connection implements Runnable {
 
     public void close() {
         cleanUp();
-        fireCloseEvent();
     }
 
     private synchronized void fireCloseEvent() {
         ConnectionCloseEvent closeEvent = new ConnectionCloseEvent(this, this);
         for (Object listener : listeners) {
             ((ConnectionListener) listener).ConnectionClosed(closeEvent);
+        }
+    }
+
+    private synchronized void fireServerCloseEvent() {
+        ServerClosedEvent closeEvent = new ServerClosedEvent(this, this);
+        for (Object listener : listeners) {
+            ((ConnectionListener) listener).ServerClosed(closeEvent);
         }
     }
 
@@ -88,9 +95,10 @@ public class Connection implements Runnable {
     private void cleanUp() {
 
         try {
-            clientSocket.close();
+            active = false;
             output.close();
             input.close();
+            clientSocket.close();
         } catch (IOException e) {
             //TODO: Better error handling!
         }
@@ -103,6 +111,8 @@ public class Connection implements Runnable {
         do {
 
             try {
+                if (!active)
+                    break;
                 int packageLength = input.readInt();
                 ByteBuffer wrapped = ByteBuffer.allocate(packageLength);
 
@@ -154,7 +164,8 @@ public class Connection implements Runnable {
         MainCommands mc = MainCommands.values()[pr.readInt()];
         switch (mc) {
             case close: {
-
+                fireServerCloseEvent();
+                break;
             }
             case ping: {
                 ServerClient sc = ServerClient.values()[pr.readInt()];
