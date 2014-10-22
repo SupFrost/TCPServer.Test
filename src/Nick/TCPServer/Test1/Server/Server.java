@@ -53,11 +53,11 @@ public class Server implements Runnable {
                 thread.start();
 
             } catch (IOException e) {
-                e.printStackTrace();
+                //TODO: Better error handling
                 try {
                     serverSocket.close();
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    //TODO: Better error handling
                     System.exit(1);
                 }
             }
@@ -67,4 +67,24 @@ public class Server implements Runnable {
         System.out.println("Server shutdown successfully!");
 
     }
+
+    public void close() {
+        cleanUp();
+    }
+
+    private void cleanUp() {
+        try {
+
+            for (Connection c : connections) {
+                c.close();
+            }
+
+            serverSocket.close();
+        } catch (IOException e) {
+            //TODO: Insert better error handling!
+        }
+        connections.clear();
+    }
+
+
 }

@@ -16,11 +16,13 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
  * Created by Nick on 18/10/2014.
+ * Apache License
+ * Version 2.0, January 2004
+ * http://www.apache.org/licenses/
  */
 public class Connection implements Runnable {
     final Socket clientSocket;
@@ -29,7 +31,7 @@ public class Connection implements Runnable {
     DataInputStream input;
     DataOutputStream output;
     short ping;
-    private List listeners = new ArrayList();
+    private List<ConnectionListener> listeners = new ArrayList<>();
 
     public Connection(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -55,10 +57,6 @@ public class Connection implements Runnable {
         return clientSocket;
     }
 
-    public short getPing() {
-        return ping;
-    }
-
     public String convertTime(long time) {
         Date date = new Date(time);
         Format format = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
@@ -72,9 +70,8 @@ public class Connection implements Runnable {
 
     private synchronized void fireCloseEvent() {
         ConnectionCloseEvent closeEvent = new ConnectionCloseEvent(this, this);
-        Iterator itListeners = listeners.iterator();
-        while (itListeners.hasNext()) {
-            ((ConnectionListener) itListeners.next()).ConnectionClosed(closeEvent);
+        for (Object listener : listeners) {
+            ((ConnectionListener) listener).ConnectionClosed(closeEvent);
         }
     }
 
@@ -93,7 +90,7 @@ public class Connection implements Runnable {
             output.close();
             input.close();
         } catch (IOException e) {
-
+            //TODO: Better error handling!
         }
     }
 
@@ -159,12 +156,13 @@ public class Connection implements Runnable {
                         break;
                     }
                     case SERVER: {
-                        //TODO: Client respond to Server ping request.
+                        long timestamp = pr.readLong();
+                        long now = new Date().getTime();
 
-                        PackageWriter pw = new PackageWriter(this);
-                        pw.write(mc.ordinal());
-                        // pw.write(timestamp);
-                        pw.send();
+                        long difference = now - timestamp;
+                        ping = (short) difference;
+
+                        System.out.println(this.clientSocket.getInetAddress().getHostName() + ": Ping: " + ping + " ms.");
                         break;
                     }
                 }
@@ -185,5 +183,20 @@ public class Connection implements Runnable {
 
         System.out.println("Data was sent!");
 
+    }
+
+    public void ping() {
+        PackageWriter pw = new PackageWriter(this);
+
+        MainCommands mc = MainCommands.ping;
+        pw.write(mc.ordinal());
+
+        ServerClient sc = ServerClient.SERVER;
+        pw.write(sc.ordinal());
+
+        pw.write(new Timestamp(new Date().getTime()).getTime());
+        pw.send();
+
+        System.out.println("Ping request sent to: " + this.getClientSocket().getInetAddress().getHostName());
     }
 }

@@ -30,6 +30,7 @@ public class Client {
             new Thread(connection).start();
         } catch (IOException e) {
             e.printStackTrace();
+            //TODO: Insert better error handling
         }
     }
 

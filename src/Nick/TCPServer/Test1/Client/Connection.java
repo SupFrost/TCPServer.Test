@@ -1,11 +1,11 @@
 package Nick.TCPServer.Test1.Client;
 
-import Nick.TCPServer.Test1.Client.PackageHandler.PackageWriter;
 import Nick.TCPServer.Test1.Events.Client.ConnectionEvents.ConnectionCloseEvent;
 import Nick.TCPServer.Test1.Events.Client.ConnectionListener;
 import Nick.TCPServer.Test1.PackageHandler.Commands.MainCommands;
 import Nick.TCPServer.Test1.PackageHandler.Commands.ServerClient;
 import Nick.TCPServer.Test1.PackageHandler.PackageReader;
+import Nick.TCPServer.Test1.Client.PackageHandler.PackageWriter;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -33,7 +33,7 @@ public class Connection implements Runnable {
     DataInputStream input;
     DataOutputStream output;
     short ping;
-    private List<ConnectionListener> listeners = new ArrayList<ConnectionListener>();
+    private List<ConnectionListener> listeners = new ArrayList<>();
 
     public Connection(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -57,10 +57,6 @@ public class Connection implements Runnable {
 
     public Socket getClientSocket() {
         return clientSocket;
-    }
-
-    public short getPing() {
-        return ping;
     }
 
     public String convertTime(long time) {
@@ -96,7 +92,7 @@ public class Connection implements Runnable {
             output.close();
             input.close();
         } catch (IOException e) {
-
+            //TODO: Better error handling!
         }
     }
 
@@ -105,6 +101,7 @@ public class Connection implements Runnable {
         byte[] buffer;
 
         do {
+
             try {
                 int packageLength = input.readInt();
                 ByteBuffer wrapped = ByteBuffer.allocate(packageLength);
@@ -143,7 +140,10 @@ public class Connection implements Runnable {
             output.write(data.array());
             output.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            //TODO: Insert better error handling
+            //The server probably closed down..
+            System.out.println("The server could not be reached!");
+            System.exit(1);
         }
     }
 
@@ -171,11 +171,12 @@ public class Connection implements Runnable {
                         break;
                     }
                     case SERVER: {
-                        //TODO: Client respond to Server ping request.
 
+                        long timestamp = pr.readLong();
                         PackageWriter pw = new PackageWriter(this);
                         pw.write(mc.ordinal());
-                        // pw.write(timestamp);
+                        pw.write(sc.ordinal());
+                        pw.write(timestamp);
                         pw.send();
                         break;
                     }

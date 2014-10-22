@@ -13,7 +13,7 @@ import java.util.Scanner;
 public class ClientTest {
     public static void main(String[] args) {
         try {
-           InetAddress IP =  InetAddress.getByAddress(new byte[]{81, 83, 15, (byte) 243});
+            InetAddress IP = InetAddress.getByName("localhost");
             Client client = new Client(25565,IP);
 
             Scanner scanner = new Scanner(System.in);
@@ -36,10 +36,7 @@ public class ClientTest {
                         System.out.println("Invalid input!");
                     }
                 }
-
-
             }
-
 
         } catch (UnknownHostException e) {
             e.printStackTrace();
