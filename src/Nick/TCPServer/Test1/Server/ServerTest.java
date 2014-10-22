@@ -25,6 +25,7 @@ public class ServerTest {
 
                     for (Connection c : Server.connections) {
                         c.ping();
+                        System.out.println("Test...");
                     }
 
                     break;
