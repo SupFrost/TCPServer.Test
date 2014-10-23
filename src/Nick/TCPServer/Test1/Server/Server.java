@@ -76,7 +76,6 @@ public class Server implements Runnable {
         System.out.println("Server shutdown successfully!");
 
     }
-
     public void close() {
         try {
 
