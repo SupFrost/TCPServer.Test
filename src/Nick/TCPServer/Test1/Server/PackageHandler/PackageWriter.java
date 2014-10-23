@@ -43,6 +43,14 @@ public class PackageWriter {
         }
     }
 
+    public void write(Connection c){
+        try {
+            byteStream.write(c.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void send() {
         try {
             int length = byteStream.size();
@@ -56,7 +64,6 @@ public class PackageWriter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public void reset() {

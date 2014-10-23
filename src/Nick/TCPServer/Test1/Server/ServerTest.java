@@ -22,7 +22,8 @@ public class ServerTest {
 
             switch (message) {
                 case "ping": {
-
+                    if(Server.connections.isEmpty())
+                        break;
                     for (Connection c : Server.connections) {
                         c.ping();
                         System.out.println("Test...");

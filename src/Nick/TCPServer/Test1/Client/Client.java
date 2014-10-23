@@ -56,7 +56,7 @@ public class Client {
     public void ping() {
         PackageWriter pw = new PackageWriter(connection);
 
-        MainCommands mc = MainCommands.ping;
+        MainCommands mc = MainCommands.PING;
         pw.write(mc.ordinal());
 
         ServerClient sc = ServerClient.CLIENT;

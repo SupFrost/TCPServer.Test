@@ -163,11 +163,11 @@ public class Connection implements Runnable {
 
         MainCommands mc = MainCommands.values()[pr.readInt()];
         switch (mc) {
-            case close: {
+            case CLOSE: {
                 fireServerCloseEvent();
                 break;
             }
-            case ping: {
+            case PING: {
                 ServerClient sc = ServerClient.values()[pr.readInt()];
                 switch (sc) {
                     case CLIENT: {

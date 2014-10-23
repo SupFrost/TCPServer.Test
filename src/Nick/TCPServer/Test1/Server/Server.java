@@ -1,5 +1,9 @@
 package Nick.TCPServer.Test1.Server;
 
+import Nick.TCPServer.Test1.PackageHandler.Commands.ConnectionCommands;
+import Nick.TCPServer.Test1.PackageHandler.Commands.MainCommands;
+import Nick.TCPServer.Test1.Server.PackageHandler.PackageWriter;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -42,6 +46,9 @@ public class Server implements Runnable {
                 Connection connection = new Connection(clientSocket);
                 connections.add(connection);
 
+                //Send new connection to each connection
+                sendAddConnectionToAll();
+
                 //Adds the event for closing the connection!
                 connection.addCloseListener(event -> {
                     connections.remove(event.connection());
@@ -83,7 +90,16 @@ public class Server implements Runnable {
             //TODO: Insert better error handling!
         }
         connections.clear();
+    }
 
-
+    public void sendAddConnectionToAll(){
+        PackageWriter pw;
+        for(Connection c : connections){
+            pw = new PackageWriter(c);
+            pw.write(MainCommands.CONNECTION.ordinal());
+            pw.write(ConnectionCommands.ADD.ordinal());
+            pw.write(c);
+            pw.send();
+        }
     }
 }

@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Nick on 18/10/2014.
@@ -24,13 +25,16 @@ import java.util.List;
  * Version 2.0, January 2004
  * http://www.apache.org/licenses/
  */
-public class Connection implements Runnable {
+public class Connection implements Runnable, Serializable {
     final Socket clientSocket;
     final Timestamp connectionTime;
     public boolean active;
     DataInputStream input;
     DataOutputStream output;
     short ping;
+
+    UUID uuid;
+
     private List<ConnectionListener> listeners = new ArrayList<>();
 
     public Connection(Socket clientSocket) {
@@ -45,6 +49,7 @@ public class Connection implements Runnable {
         }
 
         connectionTime = new Timestamp(new Date().getTime());
+        uuid.randomUUID();
 
         System.out.println("Connection made with " + clientSocket.getInetAddress() + " at " + convertTime(getConnectionTime().getTime()));
     }
@@ -72,7 +77,7 @@ public class Connection implements Runnable {
 
         PackageWriter pw = new PackageWriter(this);
 
-        MainCommands mc = MainCommands.close;
+        MainCommands mc = MainCommands.CLOSE;
         pw.write(mc.ordinal());
         pw.send();
     }
@@ -145,10 +150,10 @@ public class Connection implements Runnable {
 
         MainCommands mc = MainCommands.values()[pr.readInt()];
         switch (mc) {
-            case close: {
+            case CLOSE: {
 
             }
-            case ping: {
+            case PING: {
                 ServerClient sc = ServerClient.values()[pr.readInt()];
                 switch (sc) {
                     case CLIENT: {
@@ -197,7 +202,7 @@ public class Connection implements Runnable {
     public void ping() {
         PackageWriter pw = new PackageWriter(this);
 
-        MainCommands mc = MainCommands.ping;
+        MainCommands mc = MainCommands.PING;
         pw.write(mc.ordinal());
 
         ServerClient sc = ServerClient.SERVER;
@@ -208,4 +213,25 @@ public class Connection implements Runnable {
 
         System.out.println("Ping request sent to: " + this.getClientSocket().getInetAddress().getHostName());
     }
+
+    public byte[] toByteArray(){
+        ByteBuffer buffer = ByteBuffer.wrap(new byte[]{});
+
+        //The UUID of the connection
+        buffer.putLong(uuid.getMostSignificantBits());
+        buffer.putLong(uuid.getLeastSignificantBits());
+
+        //Client connection time
+        buffer.putLong(connectionTime.getTime());
+
+        //Client IP
+        buffer.put(clientSocket.getInetAddress().getAddress());
+
+        //Current ping
+        buffer.putShort(ping);
+
+        return buffer.array();
+
+    }
+
 }
