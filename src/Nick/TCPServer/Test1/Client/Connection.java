@@ -3,6 +3,7 @@ package Nick.TCPServer.Test1.Client;
 import Nick.TCPServer.Test1.Events.Client.ConnectionEvents.ConnectionCloseEvent;
 import Nick.TCPServer.Test1.Events.Client.ConnectionEvents.ServerClosedEvent;
 import Nick.TCPServer.Test1.Events.Client.ConnectionListener;
+import Nick.TCPServer.Test1.PackageHandler.Commands.ConnectionCommands;
 import Nick.TCPServer.Test1.PackageHandler.Commands.MainCommands;
 import Nick.TCPServer.Test1.PackageHandler.Commands.ServerClient;
 import Nick.TCPServer.Test1.PackageHandler.PackageReader;
@@ -11,6 +12,7 @@ import Nick.TCPServer.Test1.Client.PackageHandler.PackageWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -20,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Nick on 18/10/2014.
@@ -34,7 +37,9 @@ public class Connection implements Runnable {
     DataInputStream input;
     DataOutputStream output;
     short ping;
+
     private List<ConnectionListener> listeners = new ArrayList<>();
+    private List<ServerConnection> serverConnections = new ArrayList<>();
 
     public Connection(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -191,9 +196,31 @@ public class Connection implements Runnable {
                         pw.send();
                         break;
                     }
+
                 }
+                break;
+            }
+            case CONNECTION:{
+                ConnectionCommands cc = ConnectionCommands.values()[pr.readInt()];
+                switch (cc){
+                    case ADD:{
+
+                        UUID a = new UUID(pr.readLong(),pr.readLong());
+                        Timestamp b = new Timestamp(pr.readLong());
+                        InetAddress c = pr.readInetAdress();
+                        short d = pr.readShort();
 
 
+                        ServerConnection serverConnection = new ServerConnection(a,b,c,d);
+                        serverConnections.add(serverConnection);
+
+                        System.out.println("Connection info received from the server!");
+                        System.out.println(serverConnection.IP + " - " + serverConnection.Ping);
+
+                        break;
+                    }
+                }
+                break;
             }
         }
     }

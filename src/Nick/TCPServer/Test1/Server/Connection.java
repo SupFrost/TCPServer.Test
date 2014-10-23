@@ -49,7 +49,7 @@ public class Connection implements Runnable, Serializable {
         }
 
         connectionTime = new Timestamp(new Date().getTime());
-        uuid.randomUUID();
+        uuid = UUID.randomUUID();
 
         System.out.println("Connection made with " + clientSocket.getInetAddress() + " at " + convertTime(getConnectionTime().getTime()));
     }
@@ -131,7 +131,6 @@ public class Connection implements Runnable, Serializable {
                         packageLength = 0;
                     }
 
-                    System.out.println(wrapped.array().length);
                     wrapped.put(buffer);
                 }
                 handlePackage(wrapped);
@@ -158,8 +157,6 @@ public class Connection implements Runnable, Serializable {
                 switch (sc) {
                     case CLIENT: {
 
-                        System.out.println("Ping request received!");
-
                         long timestamp = pr.readLong();
                         PackageWriter pw = new PackageWriter(this);
                         pw.write(mc.ordinal());
@@ -180,8 +177,6 @@ public class Connection implements Runnable, Serializable {
                         break;
                     }
                 }
-
-
             }
         }
     }
@@ -194,8 +189,6 @@ public class Connection implements Runnable, Serializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        System.out.println("Data was sent!");
 
     }
 
@@ -215,7 +208,7 @@ public class Connection implements Runnable, Serializable {
     }
 
     public byte[] toByteArray(){
-        ByteBuffer buffer = ByteBuffer.wrap(new byte[]{});
+        ByteBuffer buffer = ByteBuffer.wrap(new byte[(Long.BYTES + Long.BYTES + Long.BYTES + 4 + Short.BYTES)]);
 
         //The UUID of the connection
         buffer.putLong(uuid.getMostSignificantBits());

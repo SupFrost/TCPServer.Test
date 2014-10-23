@@ -1,5 +1,7 @@
 package Nick.TCPServer.Test1.PackageHandler;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 /**
@@ -24,6 +26,23 @@ public class PackageReader {
 
     public long readLong() {
         return packageBuffer.getLong();
+    }
+
+    public InetAddress readInetAdress(){
+        byte[] inetadress = new byte[4];
+        packageBuffer.get(inetadress,0,inetadress.length);
+
+        try {
+            return InetAddress.getByAddress(inetadress);
+        } catch (UnknownHostException e) {
+            //TODO: Better error handling!
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public short readShort(){
+        return packageBuffer.getShort();
     }
 
 
