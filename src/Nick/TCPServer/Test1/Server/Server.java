@@ -53,10 +53,24 @@ public class Server implements Runnable {
                 connection.addCloseListener(event -> {
                     connections.remove(event.connection());
                     event.connection().active = false;
-                    System.out.println("The Connection " + event.connection().getClientSocket().getInetAddress() + " was removed from the list!");
+                    System.out.println("The Connection " + event.connection().uuid.toString() + " was removed from the list!");
+
+                    new Thread() {
+                        public void run() {
+                            for (Connection c : connections) {
+                                PackageWriter pw = new PackageWriter(c);
+                                pw.write(MainCommands.CONNECTION.ordinal());
+                                pw.write(ConnectionCommands.REMOVE.ordinal());
+
+                                pw.write(event.connection().uuid.getMostSignificantBits());
+                                pw.write(event.connection().uuid.getLeastSignificantBits());
+
+                                pw.send();
+                            }
+                        }
+                    }.start();
 
                 });
-
 
                 Thread thread = new Thread(connection);
                 thread.start();

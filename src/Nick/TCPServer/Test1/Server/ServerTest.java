@@ -36,6 +36,15 @@ public class ServerTest {
                     System.out.println("Bye bye!");
                     break;
                 }
+
+                case "list": {
+                    System.out.println("Current connected connections: " + server.connections.size());
+                    for (Connection c : server.connections) {
+                        System.out.println(c.uuid);
+                    }
+                    break;
+
+                }
                 default: {
                     System.out.println("Invalid input!");
                 }

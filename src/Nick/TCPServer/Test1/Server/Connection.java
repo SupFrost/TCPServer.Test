@@ -150,7 +150,12 @@ public class Connection implements Runnable, Serializable {
         MainCommands mc = MainCommands.values()[pr.readInt()];
         switch (mc) {
             case CLOSE: {
-
+                ServerClient sc = ServerClient.values()[pr.readInt()];
+                if (sc == ServerClient.CLIENT) {
+                    //closes connection, removes it from the list and sends it to all the clients
+                    close();
+                }
+                break;
             }
             case PING: {
                 ServerClient sc = ServerClient.values()[pr.readInt()];
