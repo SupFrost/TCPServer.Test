@@ -108,7 +108,7 @@ public class Connection implements Runnable {
             pr.send();
 
 
-            //close everthing
+            //close everything
             active = false;
             output.close();
             input.close();
@@ -237,6 +237,7 @@ public class Connection implements Runnable {
                         }
 
                         System.out.println("Connection with UUID: " + a.toString() + " has disconnected!");
+                        break;
                     }
                 }
                 break;

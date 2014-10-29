@@ -70,7 +70,6 @@ public class Connection implements Runnable, Serializable {
 
     public void close() {
         cleanUp();
-        fireCloseEvent();
     }
 
     public void serverTerminated() {
@@ -103,6 +102,7 @@ public class Connection implements Runnable, Serializable {
             clientSocket.close();
             output.close();
             input.close();
+            fireCloseEvent();
         } catch (IOException e) {
             //TODO: Better error handling!
         }
@@ -178,7 +178,7 @@ public class Connection implements Runnable, Serializable {
                         long difference = now - timestamp;
                         ping = (short) difference;
 
-                        System.out.println(this.clientSocket.getInetAddress().getHostName() + ": Ping: " + ping + " ms.");
+                        System.out.println(this.uuid + ": Ping: " + ping + " ms.");
                         break;
                     }
                 }
@@ -192,7 +192,7 @@ public class Connection implements Runnable, Serializable {
             output.write(data.array());
             output.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            //TODO: Better error handling
         }
 
     }
@@ -208,8 +208,6 @@ public class Connection implements Runnable, Serializable {
 
         pw.write(new Timestamp(new Date().getTime()).getTime());
         pw.send();
-
-        System.out.println("Ping request sent to: " + this.getClientSocket().getInetAddress().getHostName());
     }
 
     public byte[] toByteArray(){
@@ -230,6 +228,10 @@ public class Connection implements Runnable, Serializable {
 
         return buffer.array();
 
+    }
+
+    public void kick() {
+        close();
     }
 
 }

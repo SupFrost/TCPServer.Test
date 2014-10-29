@@ -26,7 +26,6 @@ public class ServerTest {
                         break;
                     for (Connection c : Server.connections) {
                         c.ping();
-                        System.out.println("Test...");
                     }
 
                     break;
@@ -41,6 +40,26 @@ public class ServerTest {
                     System.out.println("Current connected connections: " + server.connections.size());
                     for (Connection c : server.connections) {
                         System.out.println(c.uuid);
+                    }
+                    break;
+                }
+
+                case "kick": {
+                    System.out.println("Which connection should be kicked?");
+                    System.out.println("Type 'CANCEL' to exit");
+
+                    for (Connection c : server.connections) {
+                        System.out.println(c.uuid);
+                    }
+
+                    String temp = scanner.next();
+
+                    try {
+                        int i = Integer.parseInt(temp);
+                        i--;
+                        server.connections.get(i).kick();
+                    } catch (Exception e) {
+
                     }
                     break;
 

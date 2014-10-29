@@ -44,10 +44,11 @@ public class Server implements Runnable {
                 System.out.println("Awaiting connection...");
                 Socket clientSocket = serverSocket.accept();
                 Connection connection = new Connection(clientSocket);
-                connections.add(connection);
 
                 //Send new connection to each connection
-                sendAddConnectionToAll();
+                sendAddConnectionToAll(connection);
+
+                connections.add(connection);
 
                 //Adds the event for closing the connection!
                 connection.addCloseListener(event -> {
@@ -105,13 +106,13 @@ public class Server implements Runnable {
         connections.clear();
     }
 
-    public void sendAddConnectionToAll(){
+    public void sendAddConnectionToAll(Connection connection) {
         PackageWriter pw;
         for(Connection c : connections){
             pw = new PackageWriter(c);
             pw.write(MainCommands.CONNECTION.ordinal());
             pw.write(ConnectionCommands.ADD.ordinal());
-            pw.write(c);
+            pw.write(connection);
             pw.send();
         }
     }
