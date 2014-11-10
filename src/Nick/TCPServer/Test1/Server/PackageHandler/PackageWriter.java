@@ -43,7 +43,7 @@ public class PackageWriter {
         }
     }
 
-    public void write(Connection c){
+    public void write(Connection c) {
         try {
             byteStream.write(c.toByteArray());
         } catch (IOException e) {
@@ -57,8 +57,6 @@ public class PackageWriter {
             packageBuffer = ByteBuffer.allocate(length + 4);
             packageBuffer.putInt(length);
             packageBuffer.put(byteStream.toByteArray());
-
-            System.out.println("Send package has been made");
 
             connection.send(packageBuffer);
         } catch (Exception e) {

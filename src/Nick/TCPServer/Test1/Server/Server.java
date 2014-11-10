@@ -42,19 +42,34 @@ public class Server implements Runnable {
                 System.out.println("Awaiting connection...");
                 Socket clientSocket = serverSocket.accept();
                 Connection connection = new Connection(clientSocket);
-                connections.add(connection);
 
                 //Send new connection to each connection
-                sendAddConnectionToAll();
+                sendAddConnectionToAll(connection);
+
+                connections.add(connection);
 
                 //Adds the event for closing the connection!
                 connection.addCloseListener(event -> {
                     connections.remove(event.connection());
                     event.connection().active = false;
-                    System.out.println("The Connection " + event.connection().getClientSocket().getInetAddress() + " was removed from the list!");
+                    System.out.println("The Connection " + event.connection().uuid.toString() + " was removed from the list!");
+
+                    new Thread() {
+                        public void run() {
+                            for (Connection c : connections) {
+                                PackageWriter pw = new PackageWriter(c);
+                                pw.write(MainCommands.CONNECTION.ordinal());
+                                pw.write(ConnectionCommands.REMOVE.ordinal());
+
+                                pw.write(event.connection().uuid.getMostSignificantBits());
+                                pw.write(event.connection().uuid.getLeastSignificantBits());
+
+                                pw.send();
+                            }
+                        }
+                    }.start();
 
                 });
-
 
                 Thread thread = new Thread(connection);
                 thread.start();
@@ -89,13 +104,13 @@ public class Server implements Runnable {
         connections.clear();
     }
 
-    public void sendAddConnectionToAll(){
+    public void sendAddConnectionToAll(Connection connection) {
         PackageWriter pw;
         for(Connection c : connections){
             pw = new PackageWriter(c);
             pw.write(MainCommands.CONNECTION.ordinal());
             pw.write(ConnectionCommands.ADD.ordinal());
-            pw.write(c);
+            pw.write(connection);
             pw.send();
         }
     }

@@ -8,6 +8,7 @@ import Nick.TCPServer.Test1.PackageHandler.Commands.MainCommands;
 import Nick.TCPServer.Test1.PackageHandler.Commands.ServerClient;
 import Nick.TCPServer.Test1.PackageHandler.PackageReader;
 import Nick.TCPServer.Test1.Client.PackageHandler.PackageWriter;
+import Nick.TCPServer.Test1.Server.Server;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -100,6 +101,14 @@ public class Connection implements Runnable {
     private void cleanUp() {
 
         try {
+            //send disconnect to server
+            PackageWriter pr = new PackageWriter(this);
+            pr.write(MainCommands.CLOSE.ordinal());
+            pr.write(ServerClient.CLIENT.ordinal());
+            pr.send();
+
+
+            //close everything
             active = false;
             output.close();
             input.close();
@@ -134,8 +143,6 @@ public class Connection implements Runnable {
                         input.read(buffer);
                         packageLength = 0;
                     }
-
-                    System.out.println(wrapped.array().length);
                     wrapped.put(buffer);
                 }
                 handlePackage(wrapped);
@@ -215,8 +222,21 @@ public class Connection implements Runnable {
                         serverConnections.add(serverConnection);
 
                         System.out.println("Connection info received from the server!");
-                        System.out.println(serverConnection.IP + " - " + serverConnection.Ping);
+                        System.out.println(serverConnection.uuid.toString());
 
+                        break;
+                    }
+                    case REMOVE: {
+                        UUID a = new UUID(pr.readLong(), pr.readLong());
+
+                        for (ServerConnection c : serverConnections) {
+                            if (c.uuid == a) {
+                                serverConnections.remove(c);
+                                break;
+                            }
+                        }
+
+                        System.out.println("Connection with UUID: " + a.toString() + " has disconnected!");
                         break;
                     }
                 }

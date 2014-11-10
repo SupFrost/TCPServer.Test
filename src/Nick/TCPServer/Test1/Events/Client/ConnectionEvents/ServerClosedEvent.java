@@ -20,4 +20,3 @@ public class ServerClosedEvent extends EventObject {
         return _connection;
     }
 }
-
