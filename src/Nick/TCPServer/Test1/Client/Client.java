@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Nick on 18/10/2014.
@@ -70,6 +72,10 @@ public class Client {
 
     public void close() {
         connection.close();
+    }
+
+    public List<ServerConnection> connectionList(){
+        return connection.getServerConnections();
     }
 
 

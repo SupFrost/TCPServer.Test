@@ -56,6 +56,18 @@ public class Connection implements Runnable {
         connectionTime = new Timestamp(new Date().getTime());
 
         System.out.println("Connection made with " + clientSocket.getInetAddress() + " at " + convertTime(getConnectionTime().getTime()));
+
+
+        //Request the connections on the server
+        PackageWriter pw  = new PackageWriter(this);
+        pw.write(MainCommands.CONNECTION.ordinal());
+        pw.write(ConnectionCommands.LIST.ordinal());
+        pw.send();
+
+    }
+
+    public List<ServerConnection> getServerConnections(){
+        return serverConnections;
     }
 
     public Timestamp getConnectionTime() {
@@ -237,6 +249,19 @@ public class Connection implements Runnable {
                         }
 
                         System.out.println("Connection with UUID: " + a.toString() + " has disconnected!");
+                        break;
+                    }
+                    case LIST: {
+                        int amount = pr.readInt();
+                        List<ServerConnection> newList;
+
+                        for (int x = 0; x < amount; x++){
+                            ServerConnection serverConnection = new ServerConnection(new UUID(pr.readLong(),pr.readLong()),new Timestamp(pr.readLong()),new InetAddress())
+
+
+                        }
+
+
                         break;
                     }
                 }

@@ -1,5 +1,6 @@
 package Nick.TCPServer.Test1.Server;
 
+import Nick.TCPServer.Test1.PackageHandler.Commands.ConnectionCommands;
 import Nick.TCPServer.Test1.Server.PackageHandler.PackageWriter;
 import Nick.TCPServer.Test1.Events.Server.ConnectionEvents.ConnectionCloseEvent;
 import Nick.TCPServer.Test1.Events.Server.ConnectionListener;
@@ -182,6 +183,31 @@ public class Connection implements Runnable, Serializable {
                         break;
                     }
                 }
+            }
+            case CONNECTION:{
+                ConnectionCommands cc = ConnectionCommands.values()[pr.readInt()];
+                switch(cc){
+                    case LIST: {
+                        List<Connection> cs = Server.connections;
+                        int amount = cs.size();
+
+                        PackageWriter pw = new PackageWriter(this);
+                        pw.write(MainCommands.CONNECTION.ordinal());
+                        pw.write(ConnectionCommands.LIST.ordinal());
+                        pw.write(amount);
+
+                        for(Connection c : cs){
+                            pw.write(c);
+                        }
+
+                        pw.send();
+                        break;
+                    }
+
+                }
+
+
+                break;
             }
         }
     }

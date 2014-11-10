@@ -32,6 +32,14 @@ public class ClientTest {
                         System.out.println("Bye bye!");
                         break;
                     }
+                    case "list": {
+                        System.out.println("Current connected connections: " + client.connectionList().size());
+                        for(ServerConnection conn : client.connectionList() ){
+                            System.out.println(conn.uuid);
+                        }
+
+                        break;
+                    }
                     default: {
                         System.out.println("Invalid input!");
                     }
