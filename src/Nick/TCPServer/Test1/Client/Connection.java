@@ -253,16 +253,23 @@ public class Connection implements Runnable {
                     }
                     case LIST: {
                         int amount = pr.readInt();
-                        List<ServerConnection> newList;
+                        List<ServerConnection> newList = new ArrayList<>();
 
                         for (int x = 0; x < amount; x++){
-                            ServerConnection serverConnection = new ServerConnection(new UUID(pr.readLong(),pr.readLong()),new Timestamp(pr.readLong()),new InetAddress())
-
+                            ServerConnection serverConnection = new ServerConnection(new UUID(pr.readLong(),pr.readLong()),new Timestamp(pr.readLong()),(InetAddress)pr.readInetAdress(),pr.readShort());
+                            newList.add(serverConnection);
 
                         }
 
+                        serverConnections.clear();
+                        serverConnections = newList;
+
 
                         break;
+                    }
+                    case KICK: {
+                        System.out.println("You have been kicked from the server!");
+                        close();
                     }
                 }
                 break;

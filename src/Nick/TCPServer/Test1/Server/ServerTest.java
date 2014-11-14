@@ -31,8 +31,9 @@ public class ServerTest {
                     break;
                 }
                 case "STOP": {
-                    server.close();
                     System.out.println("Bye bye!");
+                    server.serverActive = false;
+                    server.close();
                     break;
                 }
 
@@ -58,6 +59,7 @@ public class ServerTest {
                         int i = Integer.parseInt(temp);
                         i--;
                         server.connections.get(i).kick();
+
                     } catch (Exception e) {
 
                     }
@@ -66,6 +68,7 @@ public class ServerTest {
                 }
                 default: {
                     System.out.println("Invalid input!");
+                    break;
                 }
             }
         }

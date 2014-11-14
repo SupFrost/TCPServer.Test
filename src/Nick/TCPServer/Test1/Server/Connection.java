@@ -70,7 +70,10 @@ public class Connection implements Runnable, Serializable {
     }
 
     public void close() {
+        fireCloseEvent();
         cleanUp();
+
+        System.out.println("The Connection " + this.uuid.toString() + " was removed from the list!");
     }
 
     public void serverTerminated() {
@@ -103,7 +106,7 @@ public class Connection implements Runnable, Serializable {
             clientSocket.close();
             output.close();
             input.close();
-            fireCloseEvent();
+
         } catch (IOException e) {
             //TODO: Better error handling!
         }
@@ -142,7 +145,6 @@ public class Connection implements Runnable, Serializable {
             }
 
         } while (active);
-        close();
     }
 
     private void handlePackage(ByteBuffer data) {
@@ -183,6 +185,7 @@ public class Connection implements Runnable, Serializable {
                         break;
                     }
                 }
+                break;
             }
             case CONNECTION:{
                 ConnectionCommands cc = ConnectionCommands.values()[pr.readInt()];
@@ -209,6 +212,7 @@ public class Connection implements Runnable, Serializable {
 
                 break;
             }
+
         }
     }
 
@@ -257,6 +261,13 @@ public class Connection implements Runnable, Serializable {
     }
 
     public void kick() {
+        //Send kicked command to client.
+        PackageWriter pw = new PackageWriter(this);
+        pw.write(MainCommands.CONNECTION.ordinal());
+        pw.write(ConnectionCommands.KICK.ordinal());
+        pw.send();
+
+
         close();
     }
 

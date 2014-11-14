@@ -8,5 +8,6 @@ package Nick.TCPServer.Test1.PackageHandler.Commands;
  */public enum ConnectionCommands {
     ADD,
     REMOVE,
-    LIST
+    LIST,
+    KICK
 }

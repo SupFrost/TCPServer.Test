@@ -19,6 +19,7 @@ public class Server implements Runnable {
     public static CopyOnWriteArrayList<Connection> connections;
     final int PORT;
     ServerSocket serverSocket;
+    public boolean serverActive = true;
 
     public Server(int port) {
         PORT = port;
@@ -37,10 +38,12 @@ public class Server implements Runnable {
     public void run() {
         System.out.println("Server running!");
 
-        do {
-            try {
+        do{
+            try{
+
                 System.out.println("Awaiting connection...");
-                Socket clientSocket = serverSocket.accept();
+                Socket clientSocket = null;
+                clientSocket = serverSocket.accept();
                 Connection connection = new Connection(clientSocket);
 
                 //Send new connection to each connection
@@ -52,7 +55,6 @@ public class Server implements Runnable {
                 connection.addCloseListener(event -> {
                     connections.remove(event.connection());
                     event.connection().active = false;
-                    System.out.println("The Connection " + event.connection().uuid.toString() + " was removed from the list!");
 
                     new Thread() {
                         public void run() {
@@ -74,17 +76,11 @@ public class Server implements Runnable {
                 Thread thread = new Thread(connection);
                 thread.start();
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 //TODO: Better error handling
-                try {
-                    serverSocket.close();
-                } catch (IOException e1) {
-                    //TODO: Better error handling
-                    System.exit(1);
-                }
             }
 
-        } while (!serverSocket.isClosed());
+        }while (!serverSocket.isClosed());
 
         System.out.println("Server shutdown successfully!");
 
@@ -96,12 +92,11 @@ public class Server implements Runnable {
                 c.serverTerminated();
                 c.close();
             }
-
+            connections.clear();
             serverSocket.close();
         } catch (IOException e) {
             //TODO: Insert better error handling!
         }
-        connections.clear();
     }
 
     public void sendAddConnectionToAll(Connection connection) {
