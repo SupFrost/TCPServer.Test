@@ -1,5 +1,8 @@
 package Nick.TCPServer.Test1.Server;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.Scanner;
 
 /**
@@ -64,8 +67,8 @@ public class ServerTest {
 
                     }
                     break;
-
                 }
+
                 default: {
                     System.out.println("Invalid input!");
                     break;

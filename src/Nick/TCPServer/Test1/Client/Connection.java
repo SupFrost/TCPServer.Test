@@ -213,7 +213,12 @@ public class Connection implements Runnable {
                         pw.write(sc.ordinal());
                         pw.write(timestamp);
                         pw.send();
+
                         break;
+
+
+
+
                     }
 
                 }
