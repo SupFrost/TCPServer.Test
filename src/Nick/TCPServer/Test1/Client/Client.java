@@ -22,14 +22,21 @@ import java.util.List;
  * http://www.apache.org/licenses/
  */
 public class Client {
-    final int PORT;
-    final InetAddress IP;
+    static int PORT = 0;
+    static InetAddress IP = null;
+    static boolean serverAvailable = false;
     Connection connection;
 
-    public Client(int Port, InetAddress IP) {
+   public Client(int Port, InetAddress IP) {
         this.PORT = Port;
         this.IP = IP;
         try {
+            System.out.println("Finding server..");
+            while(!serverAvailable){
+                serverAvailable = hostAvailabilityCheck();
+                Thread.sleep(1000);
+            }
+
             Socket clientSocket = new Socket(IP, PORT);
             connection = new Nick.TCPServer.Test1.Client.Connection(clientSocket);
             new Thread(connection).start();
@@ -52,8 +59,10 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
             //TODO: Insert better error handling
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-    }
+   }
 
     public void ping() {
         PackageWriter pw = new PackageWriter(connection);
@@ -76,6 +85,15 @@ public class Client {
 
     public List<ServerConnection> connectionList(){
         return connection.getServerConnections();
+    }
+
+    public static boolean hostAvailabilityCheck() {
+        try (Socket s = new Socket(Client.IP, Client.PORT)) {
+            return true;
+        } catch (IOException ex) {
+        /* ignore */
+        }
+        return false;
     }
 
 
